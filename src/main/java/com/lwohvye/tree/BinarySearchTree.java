@@ -26,26 +26,26 @@ import java.util.LinkedList;
 //  局限性：二分搜索树在时间性能上是具有局限性的。二叉搜索树可能退化成链表
 public class BinarySearchTree<K extends Comparable, V> {
     // 树中的节点为私有的类, 外界不需要了解二分搜索树节点的具体实现
-    private class Node {
+    private class TreeNode {
         private K key;
         private V value;
-        private Node left, right;
+        private TreeNode left, right;
 
-        public Node(K key, V value) {
+        public TreeNode(K key, V value) {
             this.key = key;
             this.value = value;
             left = right = null;
         }
 
-        public Node(Node node) {
-            this.key = node.key;
-            this.value = node.value;
-            this.left = node.left;
-            this.right = node.right;
+        public TreeNode(TreeNode treeNode) {
+            this.key = treeNode.key;
+            this.value = treeNode.value;
+            this.left = treeNode.left;
+            this.right = treeNode.right;
         }
     }
 
-    private Node root;  // 根节点
+    private TreeNode root;  // 根节点
     private int count;  // 树中的节点个数
 
     // 构造函数, 默认构造一棵空二分搜索树
@@ -98,7 +98,7 @@ public class BinarySearchTree<K extends Comparable, V> {
     public void levelOrder() {
 
         // 我们使用LinkedList来作为我们的队列
-        var queue = new LinkedList<Node>();
+        var queue = new LinkedList<TreeNode>();
         queue.add(root);
         while (!queue.isEmpty()) {
 
@@ -150,172 +150,188 @@ public class BinarySearchTree<K extends Comparable, V> {
 
     // 向以node为根的二分搜索树中, 插入节点(key, value), 使用递归算法
     // 返回插入新节点后的二分搜索树的根
-    private Node insert(Node node, K key, V value) {
+    private TreeNode insert(TreeNode root, K key, V value) {
 
-        if (node == null) {
+        if (root == null) {
             count++;
-            return new Node(key, value);
+            return new TreeNode(key, value);
         }
 
-        if (key.compareTo(node.key) == 0)
-            node.value = value;
-        else if (key.compareTo(node.key) < 0)
-            node.left = insert(node.left, key, value);
+        if (key.compareTo(root.key) == 0)
+            root.value = value;
+        else if (key.compareTo(root.key) < 0)
+            root.left = insert(root.left, key, value);
         else    // key > node->key
-            node.right = insert(node.right, key, value);
+            root.right = insert(root.right, key, value);
 
-        return node;
+        return root;
     }
 
     // 查看以node为根的二分搜索树中是否包含键值为key的节点, 使用递归算法
-    private boolean contain(Node node, K key) {
+    private boolean contain(TreeNode root, K key) {
 
-        if (node == null)
+        if (root == null)
             return false;
 
-        if (key.compareTo(node.key) == 0)
+        if (key.compareTo(root.key) == 0)
             return true;
-        else if (key.compareTo(node.key) < 0)
-            return contain(node.left, key);
+        else if (key.compareTo(root.key) < 0)
+            return contain(root.left, key);
         else // key > node->key
-            return contain(node.right, key);
+            return contain(root.right, key);
     }
 
     // 在以node为根的二分搜索树中查找key所对应的value, 递归算法
     // 若value不存在, 则返回NULL
-    private V search(Node node, K key) {
+    private V search(TreeNode root, K key) {
 
-        if (node == null)
+        if (root == null)
             return null;
 
-        if (key.compareTo(node.key) == 0)
-            return node.value;
-        else if (key.compareTo(node.key) < 0)
-            return search(node.left, key);
+        if (key.compareTo(root.key) == 0)
+            return root.value;
+        else if (key.compareTo(root.key) < 0)
+            return search(root.left, key);
         else // key > node->key
-            return search(node.right, key);
+            return search(root.right, key);
     }
 
     // 对以node为根的二叉搜索树进行前序遍历, 递归算法
-    private void preOrder(Node node) {
+    private void preOrder(TreeNode root) {
 
-        if (node != null) {
-            System.out.println(node.key);
-            preOrder(node.left);
-            preOrder(node.right);
+        if (root != null) {
+            System.out.println(root.key);
+            preOrder(root.left);
+            preOrder(root.right);
         }
     }
 
     // 对以node为根的二叉搜索树进行中序遍历, 递归算法
-    private void inOrder(Node node) {
+    // 也可使用栈来实现
+    private void inOrder(TreeNode root) {
 
-        if (node != null) {
-            inOrder(node.left);
-            System.out.println(node.key);
-            inOrder(node.right);
+        if (root != null) {
+            inOrder(root.left);
+            System.out.println(root.key);
+            inOrder(root.right);
+        }
+    }
+
+    private void inOrder1(TreeNode root) {
+        var stack = new LinkedList<TreeNode>();
+        while (root != null || !stack.isEmpty()) {
+            // 左节点依次入栈
+            while (root != null) {
+                stack.push(root);
+                root = root.left;
+            }
+            // 出栈
+            root = stack.pop();
+            System.out.println(root.value);
+            root = root.right;
         }
     }
 
     // 对以node为根的二叉搜索树进行后序遍历, 递归算法
-    private void postOrder(Node node) {
+    private void postOrder(TreeNode root) {
 
-        if (node != null) {
-            postOrder(node.left);
-            postOrder(node.right);
-            System.out.println(node.key);
+        if (root != null) {
+            postOrder(root.left);
+            postOrder(root.right);
+            System.out.println(root.key);
         }
     }
 
     // 返回以node为根的二分搜索树的最小键值所在的节点
-    private Node minimum(Node node) {
-        if (node.left == null)
-            return node;
+    private TreeNode minimum(TreeNode root) {
+        if (root.left == null)
+            return root;
 
-        return minimum(node.left);
+        return minimum(root.left);
     }
 
     // 返回以node为根的二分搜索树的最大键值所在的节点
-    private Node maximum(Node node) {
-        if (node.right == null)
-            return node;
+    private TreeNode maximum(TreeNode root) {
+        if (root.right == null)
+            return root;
 
-        return maximum(node.right);
+        return maximum(root.right);
     }
 
     // 删除掉以node为根的二分搜索树中的最小节点
     // 返回删除节点后新的二分搜索树的根
-    private Node removeMin(Node node) {
+    private TreeNode removeMin(TreeNode root) {
         // 左节点为空，则删除该节点后，右节点上移到该节点位置
-        if (node.left == null) {
+        if (root.left == null) {
 
-            Node rightNode = node.right;
-            node.right = null;
+            var rightTreeNode = root.right;
+            root.right = null;
             count--;
-            return rightNode;
+            return rightTreeNode;
         }
 
-        node.left = removeMin(node.left);
-        return node;
+        root.left = removeMin(root.left);
+        return root;
     }
 
     // 删除掉以node为根的二分搜索树中的最大节点
     // 返回删除节点后新的二分搜索树的根
-    private Node removeMax(Node node) {
+    private TreeNode removeMax(TreeNode root) {
         // 右节点为空，则删除该节点后，左节点上移到该节点位置
-        if (node.right == null) {
+        if (root.right == null) {
 
-            Node leftNode = node.left;
-            node.left = null;
+            var leftTreeNode = root.left;
+            root.left = null;
             count--;
-            return leftNode;
+            return leftTreeNode;
         }
 
-        node.right = removeMax(node.right);
-        return node;
+        root.right = removeMax(root.right);
+        return root;
     }
 
     // 删除掉以node为根的二分搜索树中键值为key的节点, 递归算法
     // 返回删除节点后新的二分搜索树的根
-    private Node remove(Node node, K key) {
+    private TreeNode remove(TreeNode root, K key) {
 
-        if (node == null)
+        if (root == null)
             return null;
 
-        if (key.compareTo(node.key) < 0) {
-            node.left = remove(node.left, key);
-            return node;
-        } else if (key.compareTo(node.key) > 0) {
-            node.right = remove(node.right, key);
-            return node;
+        if (key.compareTo(root.key) < 0) {
+            root.left = remove(root.left, key);
+            return root;
+        } else if (key.compareTo(root.key) > 0) {
+            root.right = remove(root.right, key);
+            return root;
         } else {   // key == node->key
 
             // 待删除节点左子树为空的情况
-            if (node.left == null) {
-                Node rightNode = node.right;
-                node.right = null;
+            if (root.left == null) {
+                var rightTreeNode = root.right;
+                root.right = null;
                 count--;
-                return rightNode;
+                return rightTreeNode;
             }
 
             // 待删除节点右子树为空的情况
-            if (node.right == null) {
-                Node leftNode = node.left;
-                node.left = null;
+            if (root.right == null) {
+                var leftTreeNode = root.left;
+                root.left = null;
                 count--;
-                return leftNode;
+                return leftTreeNode;
             }
 
             // 待删除节点左右子树均不为空的情况
 
             // 找到比待删除节点大的最小节点, 即待删除节点右子树的最小节点
             // 用这个节点顶替待删除节点的位置
-            Node successor = new Node(minimum(node.right));
+            var successor = new TreeNode(minimum(root.right));
             count++;
 
-            successor.right = removeMin(node.right);
-            successor.left = node.left;
+            successor.right = removeMin(root.right);
+            successor.left = root.left;
 
-            node.left = node.right = null;
+            root.left = root.right = null;
             count--;
 
             return successor;

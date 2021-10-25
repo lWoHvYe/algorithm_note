@@ -1,5 +1,6 @@
 package com.lwohvye.graph;
 
+import java.util.ArrayDeque;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
@@ -116,7 +117,9 @@ public class GraphTheory {
             // 这一块代码，当起点不值一个时，可能需要定一个名为超级源点的起始，在这里把目标起点放入队列
             // 定义队列
             // LinkList可当队列用，使用offer和poll方法
-            var queue = new LinkedList<int[]>();
+//            var queue = new LinkedList<int[]>();
+            // ArrayDeque is likely to be faster than Stack when used as a stack, and faster than LinkedList when used as a queue
+            var queue = new ArrayDeque<int[]>();
             // 这里视作这么目标点都是从一个源点出发的
             for (int i = 0; i < m; ++i) {
                 for (int j = 0; j < n; ++j) {
