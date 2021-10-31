@@ -18,7 +18,7 @@ package com.lwohvye.tree;
 //二分搜索树的层序遍历，即逐层进行遍历，即将每层的节点存在队列当中，然后进行出队（取出节点）和入队（存入下一层的节点）的操作，以此达到遍历的目的。
 //  通过引入一个队列来支撑层序遍历（广度优先）
 
-import java.util.LinkedList;
+import java.util.*;
 
 // 二分搜索树的特性
 //  顺序性：二分搜索树可以当做查找表的一种实现。
@@ -206,6 +206,67 @@ public class BinarySearchTree<K extends Comparable, V> {
         }
     }
 
+    // 前序遍历。迭代。先当前再左再右
+    public List<K> preorderTraversal(TreeNode root) {
+        var stack = new ArrayDeque<TreeNode>();
+        var ans = new ArrayList<K>();
+
+        while (root != null || !stack.isEmpty()) {
+            // 左节点依次入栈
+            while (root != null) {
+                ans.add(root.key);
+                stack.push(root);
+                root = root.left;
+            }
+            // 出栈
+            root = stack.pop();
+            root = root.right;
+        }
+        return ans;
+    }
+
+    //有一种巧妙的方法可以在线性时间内，只占用常数空间来实现前序遍历。这种方法由 J. H. Morris 在 1979 年的论文「Traversing Binary Trees Simply and Cheaply」中首次提出，因此被称为 Morris 遍历。
+    //
+    //Morris 遍历的核心思想是利用树的大量空闲指针，实现空间开销的极限缩减。
+    //Morris 遍历算法整体步骤如下（假设当前遍历到的节点为 x）：
+    //
+    //如果 x 无左子节点，先将 x 的值加入答案数组，再访问 x 的右子节点，即 x=x.right。
+    //如果 x 有左子节点，则找到 x 左子树上最右的节点（即左子树中序遍历的最后一个节点，x 在中序遍历中的前驱节点），我们记为 predecessor。根据 predecessor 的右子节点是否为空，进行如下操作。
+    //  如果 predecessor 的右子节点为空（初始情况下），则将其右子节点指向 x，将 x 的值加入答案数组，然后访问 x 的左子节点，即 x=x.left。
+    //  如果 predecessor 的右子节点不为空(已经走过了上面那步，此时右子节点就是x)，则此时其右子节点指向 x，说明我们已经遍历完 x 的左子树（因为），我们将 predecessor 的右子节点置空，
+    //      然后访问 x 的右子节点，即 x=x.right。
+    //重复上述操作，直至访问完整棵树
+    //
+    public List<K> preorderTraversalMorris(TreeNode root) {
+        var res = new ArrayList<K>();
+        TreeNode predecessor;
+
+        while (root != null) {
+            if (root.left != null) {
+                // predecessor 节点就是当前 root 节点向左走一步，然后一直向右走至无法走为止
+                predecessor = root.left;
+                while (predecessor.right != null && predecessor.right != root)
+                    predecessor = predecessor.right;
+
+                // 让 predecessor 的右指针指向 root，继续遍历左子树
+                if (predecessor.right == null) {
+                    predecessor.right = root;
+                    res.add(root.key);
+                    root = root.left;
+                } else {
+                    // 说明左子树已经访问完了，我们需要断开链接
+                    predecessor.right = null;
+                    root = root.right;
+                }
+            } else {
+                // 如果没有左子节点，则直接访问右子节点
+                res.add(root.key);
+                root = root.right;
+            }
+        }
+        return res;
+    }
+
     // 对以node为根的二叉搜索树进行中序遍历, 递归算法
     // 也可使用栈来实现
     private void inOrder(TreeNode root) {
@@ -217,8 +278,10 @@ public class BinarySearchTree<K extends Comparable, V> {
         }
     }
 
-    private void inOrder1(TreeNode root) {
-        var stack = new LinkedList<TreeNode>();
+    public List<K> inorderTraversal(TreeNode root) {
+        var stack = new ArrayDeque<TreeNode>();
+        var ans = new ArrayList<K>();
+
         while (root != null || !stack.isEmpty()) {
             // 左节点依次入栈
             while (root != null) {
@@ -227,9 +290,51 @@ public class BinarySearchTree<K extends Comparable, V> {
             }
             // 出栈
             root = stack.pop();
-            System.out.println(root.value);
+            ans.add(root.key);
             root = root.right;
         }
+        return ans;
+    }
+
+    //Morris 遍历算法是另一种遍历二叉树的方法，它能将非递归的中序遍历空间复杂度降为 O(1)。
+    //
+    //Morris 遍历算法整体步骤如下（假设当前遍历到的节点为 x）：
+    //
+    //如果 x 无左子节点，先将 x 的值加入答案数组，再访问 x 的右子节点，即 x=x.right。
+    //如果 x 有左子节点，则找到 x 左子树上最右的节点（即左子树中序遍历的最后一个节点，x 在中序遍历中的前驱节点），我们记为 predecessor。根据 predecessor 的右子节点是否为空，进行如下操作。
+    //  如果 predecessor 的右子节点为空（初始情况下），则将其右子节点指向 x，然后访问 x 的左子节点，即 x=x.left。
+    //  如果 predecessor 的右子节点不为空(已经走过了上面那步，此时右子节点就是x)，则此时其右子节点指向 x，说明我们已经遍历完 x 的左子树（因为），我们将 predecessor 的右子节点置空，
+    //      将 x 的值加入答案数组，然后访问 x 的右子节点，即 x=x.right。
+    //重复上述操作，直至访问完整棵树
+    //
+    public List<K> inorderTraversalMorris(TreeNode root) {
+        var res = new ArrayList<K>();
+        TreeNode predecessor;
+
+        while (root != null) {
+            if (root.left != null) {
+                // predecessor 节点就是当前 root 节点向左走一步，然后一直向右走至无法走为止
+                predecessor = root.left;
+                while (predecessor.right != null && predecessor.right != root)
+                    predecessor = predecessor.right;
+
+                // 让 predecessor 的右指针指向 root，继续遍历左子树
+                if (predecessor.right == null) {
+                    predecessor.right = root;
+                    root = root.left;
+                } else {
+                    // 说明左子树已经访问完了，我们需要断开链接
+                    res.add(root.key);
+                    predecessor.right = null;
+                    root = root.right;
+                }
+            } else {
+                // 如果没有左子节点，则直接访问右子节点
+                res.add(root.key);
+                root = root.right;
+            }
+        }
+        return res;
     }
 
     // 对以node为根的二叉搜索树进行后序遍历, 递归算法
@@ -239,6 +344,88 @@ public class BinarySearchTree<K extends Comparable, V> {
             postOrder(root.left);
             postOrder(root.right);
             System.out.println(root.key);
+        }
+    }
+
+    public List<K> postorderTraversal(TreeNode root) {
+        var stack = new ArrayDeque<TreeNode>();
+        var ans = new ArrayList<K>();
+
+        TreeNode prev = null;
+        while (root != null || !stack.isEmpty()) {
+            while (root != null) {
+                stack.push(root);
+                root = root.left;
+            }
+            root = stack.pop();
+            // 无右子节点，或右子节点为之前指定的节点x
+            if (root.right == null || root.right == prev) {
+                ans.add(root.key);
+                prev = root;
+                root = null;
+            } else {
+                stack.push(root);
+                root = root.right;
+            }
+        }
+        return ans;
+    }
+
+    //Morris 遍历算法整体步骤如下（假设当前遍历到的节点为 x）：
+    //
+    //如果 x 无左子节点，访问 x 的右子节点，即 x=x.right。
+    //如果 x 有左子节点，则找到 x 左子树上最右的节点（即左子树中序遍历的最后一个节点，x 在中序遍历中的前驱节点），我们记为 predecessor。根据 predecessor 的右子节点是否为空，进行如下操作。
+    //  如果 predecessor 的右子节点为空（初始情况下），则将其右子节点指向 x，然后访问 x 的左子节点，即 x=x.left。
+    //  如果 predecessor 的右子节点不为空(已经走过了上面那步，此时右子节点就是x)，则此时其右子节点指向 x，说明我们已经遍历完 x 的左子树（因为），我们将 predecessor 的右子节点置空，
+    //      倒序输出从当前节点的左子节点到该前驱节点这条路径上的所有节点，然后访问 x 的右子节点，即 x=x.right。
+    //重复上述操作，直至访问完整棵树
+    //
+    public List<K> postorderTraversalMorris(TreeNode root) {
+        var ans = new ArrayList<K>();
+
+        var curRoot = root;
+        TreeNode predecessor;
+
+        while (curRoot != null) {
+            if (curRoot.left != null) {
+                // predecessor 节点就是当前 root 节点向左走一步，然后一直向右走至无法走为止
+                predecessor = curRoot.left;
+                while (predecessor.right != null && predecessor.right != curRoot)
+                    predecessor = predecessor.right;
+
+                // 让 predecessor 的右指针指向 root，继续遍历左子树
+                if (predecessor.right == null) {
+                    predecessor.right = curRoot;
+                    curRoot = curRoot.left;
+                } else {
+                    // 说明左子树已经访问完了，我们需要断开链接
+                    predecessor.right = null;
+                    // 倒序输出。。。
+                    addPath(ans, curRoot.left);
+                    curRoot = curRoot.right;
+                }
+            } else {
+                // 如果没有左子节点，则直接访问右子节点
+                curRoot = curRoot.right;
+            }
+        }
+        // 倒序输出。。。
+        addPath(ans, root);
+        return ans;
+    }
+
+    // 逆序输出
+    public void addPath(List<K> ans, TreeNode root) {
+        if (root == null)
+            return;
+        ans.add(root.key);
+        root = root.right;
+
+        int preIndex = 1;
+        while (root != null) {
+            //  在指定位置逆序插入
+            ans.add(ans.size() - 1 - (preIndex++), root.key);
+            root = root.right;
         }
     }
 
