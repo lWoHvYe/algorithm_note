@@ -429,6 +429,31 @@ public class BinarySearchTree<K extends Comparable, V> {
         }
     }
 
+    // 层序遍历-bfs
+    public List<List<K>> levelOrder(TreeNode root) {
+        var ret = new ArrayList<List<K>>();
+        if (root == null)
+            return ret;
+
+        var queue = new LinkedList<TreeNode>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            var level = new ArrayList<K>();
+            // 每次处理一层
+            int currentLevelSize = queue.size();
+            for (int i = 1; i <= currentLevelSize; ++i) {
+                TreeNode node = queue.poll();
+                level.add(node.key);
+                if (node.left != null)
+                    queue.offer(node.left);
+                if (node.right != null)
+                    queue.offer(node.right);
+            }
+            ret.add(level);
+        }
+        return ret;
+    }
+
     // 返回以node为根的二分搜索树的最小键值所在的节点
     private TreeNode minimum(TreeNode root) {
         if (root.left == null)
