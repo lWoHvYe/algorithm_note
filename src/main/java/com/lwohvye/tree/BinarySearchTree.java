@@ -27,6 +27,7 @@ import java.util.*;
 public class BinarySearchTree<K extends Comparable, V> {
     // 树中的节点为私有的类, 外界不需要了解二分搜索树节点的具体实现
     private class TreeNode {
+        // 这种定义方式，二分搜索树的相关性质是基于key的，K 要实现Comparable接口。部分情况下，树中可能没有value。
         private K key;
         private V value;
         private TreeNode left, right;
@@ -96,21 +97,7 @@ public class BinarySearchTree<K extends Comparable, V> {
 
     // 二分搜索树的层序遍历
     public void levelOrder() {
-
-        // 我们使用LinkedList来作为我们的队列
-        var queue = new LinkedList<TreeNode>();
-        queue.add(root);
-        while (!queue.isEmpty()) {
-
-            var node = queue.remove();
-
-            System.out.println(node.key);
-
-            if (node.left != null)
-                queue.add(node.left);
-            if (node.right != null)
-                queue.add(node.right);
-        }
+        levelOrder(root);
     }
 
     // 寻找二分搜索树的最小的键值
@@ -147,6 +134,33 @@ public class BinarySearchTree<K extends Comparable, V> {
     //********************
     //* 二分搜索树的辅助函数
     //********************
+    public boolean isValidBST(TreeNode root) {
+        var stack = new LinkedList<TreeNode>();
+        // 初始为null，首次使用前要初始化
+        K inorder = null;
+
+        while (!stack.isEmpty() || root != null) {
+            while (root != null) {
+                stack.push(root);
+                root = root.left;
+            }
+            root = stack.pop();
+            // 此时root已为最左边的节点，在标准的二分搜索树上，应为最小的值
+            if (inorder == null) {
+                inorder = root.key;
+                root = root.right;
+                continue;
+            }
+            // 如果中序遍历得到的节点的值小于等于前一个 inorder，说明不是二叉搜索树
+            //  A.compartTo(B)。若 A = B则返回0，若A > B则返回正值，若 A < B 则返回负值
+            if (root.key.compareTo(inorder) <= 0) {
+                return false;
+            }
+            inorder = root.key;
+            root = root.right;
+        }
+        return true;
+    }
 
     // 向以node为根的二分搜索树中, 插入节点(key, value), 使用递归算法
     // 返回插入新节点后的二分搜索树的根
