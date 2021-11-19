@@ -12,12 +12,14 @@ public class UnionFind {
 
     private int[] parent; // parent[i]表示第i个元素所指向的父节点
     private int count;    // 数据个数
+    private int part;     // 独立节点的个数
 
     // 构造函数
     public UnionFind(int count) {
         rank = new int[count];
         parent = new int[count];
         this.count = count;
+        this.part = count;
         // 初始化, 每一个parent[i]指向自己, 表示每一个元素自己自成一个集合
         for (int i = 0; i < count; ++i) {
             parent[i] = i;
@@ -56,6 +58,8 @@ public class UnionFind {
         // 根节点同
         if (pRoot == qRoot)
             return;
+        // 根节点不同，合并后，分区减一
+        part--;
         // 父节点不同时，比较秩
         if (rank[pRoot] < rank[qRoot])
             parent[pRoot] = qRoot;
