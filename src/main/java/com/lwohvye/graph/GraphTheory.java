@@ -25,7 +25,7 @@ public class GraphTheory {
             // 操作值为起始点的
             var goalVal = grid[sr][sc];
             // 定义栈
-//            var stack = new Stack<int[]>();
+            // var stack = new Stack<int[]>();
             // LinkList可当栈用，使用push和pop方法
             var stack = new LinkedList<int[]>();
             // 先改再存
@@ -61,7 +61,7 @@ public class GraphTheory {
             // 起始点颜色
             var goalVal = grid[sr][sc];
             // 定义队列
-//            var queue = new Queue<int[]>();
+            // var queue = new Queue<int[]>();
             // LinkList可当队列用，使用offer和poll方法
             var queue = new LinkedList<int[]>();
             // 先改再存
@@ -117,14 +117,14 @@ public class GraphTheory {
             // 这一块代码，当起点不值一个时，可能需要定一个名为超级源点的起始，在这里把目标起点放入队列
             // 定义队列
             // LinkList可当队列用，使用offer和poll方法
-//            var queue = new LinkedList<int[]>();
+            // var queue = new LinkedList<int[]>();
             // ArrayDeque is likely to be faster than Stack when used as a stack, and faster than LinkedList when used as a queue
             var queue = new ArrayDeque<int[]>();
             // 这里视作这么目标点都是从一个源点出发的
             for (int i = 0; i < m; ++i) {
                 for (int j = 0; j < n; ++j) {
                     // 将目标点放入
-                    if (grid[i][j] == goalVal){
+                    if (grid[i][j] == goalVal) {
                         // 先改再存
                         grid[i][j] = newVal;
                         // 存放
