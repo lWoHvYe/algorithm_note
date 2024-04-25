@@ -42,6 +42,17 @@ public class UnionFind {
         return parent[p];
     }
 
+    // 压缩路径，但这个与秩冲突了。基于该方式，已不必担心树高问题，时间复杂度O(å(n)) <= O(4)
+    private int findZipPath(int p) {
+        int root = find(p);
+        while (p != root) {
+            int t = parent[p];
+            parent[t] = root; // 路径压缩
+            p = t;
+        }
+        return root;
+    }
+
     // 查看元素p和元素q是否所属一个集合
     // O(h)复杂度, h为树的高度
     public boolean isConnected(int p, int q) {
